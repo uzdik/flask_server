@@ -5,7 +5,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import JavascriptException, TimeoutException
+from selenium.common.exceptions import JavascriptException, TimeoutException, NoSuchElementException
 from urllib.parse import quote as url_quote
 from datetime import datetime
 import re
@@ -100,18 +100,13 @@ def submit():
         system_time = datetime.strptime(system_time, "%m/%d/%Y, %I:%M:%S %p")
         system_time = system_time.replace(second=0)
         app.logger.debug(f"System time in browser context: {system_time}")
-
-
-
+        time.sleep(20)
         res_url = f"https://codeforces.com/{typeContest}/{contestId}/my"
         driver.get(res_url)
 
-          # Wait until "verdict-waiting" class disappears
-        WebDriverWait(driver, 300).until(
-            EC.invisibility_of_element_located((By.CLASS_NAME, "verdict-waiting"))
-        )
+        #WebDriverWait(driver, 300).until(EC.invisibility_of_element_located((By.CLASS_NAME, "verdict-waiting")))
         app.logger.debug("Submission verdict received")
-
+        driver.refresh()
         html_content = driver.page_source
         soup = BeautifulSoup(html_content, "html.parser")
         app.logger.debug("Fetched results page")
