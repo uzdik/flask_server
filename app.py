@@ -35,7 +35,8 @@ def submit():
     driver = webdriver.Chrome(options=chrome_options)  
     app.logger.debug("Chrome WebDriver started")
 
-    try:        driver.get(enter_url)
+    try:
+        driver.get(enter_url)
 
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "handleOrEmail")))
 
@@ -146,11 +147,11 @@ def submit():
         response.headers.add("Access-Control-Allow-Methods", "POST")
 
     except TimeoutException as e:
-        driver.save_screenshot("error_screenshot.png")
+        #driver.save_screenshot("error_screenshot.png")
         app.logger.error(f"Timeout error: {e}")
         return jsonify({"error": "Timeout error"}), 500
     except Exception as e:
-        driver.save_screenshot("error_screenshot.png")
+        #driver.save_screenshot("error_screenshot.png")
         app.logger.error(f"Unexpected error: {e}")
         return jsonify({"error": "Unexpected error"}), 500
     finally:
