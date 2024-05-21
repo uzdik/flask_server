@@ -11,6 +11,7 @@ RUN set -e \
         wget \
         unzip \
         ca-certificates \
+        gnupg \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Google Chrome
