@@ -108,6 +108,13 @@ def submit():
 
         res_url = f"https://codeforces.com/{typeContest}/{contestId}/my"
         driver.get(res_url)
+
+          # Wait until "Выполняется на тесте" disappears
+        WebDriverWait(driver, 300).until(
+            EC.invisibility_of_element_located((By.XPATH, "//*[contains(text(), 'Выполняется на тесте')]"))
+        )
+        app.logger.debug("Submission completed")
+
         html_content = driver.page_source
         soup = BeautifulSoup(html_content, "html.parser")
         app.logger.debug("Fetched results page")
