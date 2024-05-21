@@ -109,11 +109,11 @@ def submit():
         res_url = f"https://codeforces.com/{typeContest}/{contestId}/my"
         driver.get(res_url)
 
-          # Wait until "Выполняется на тесте" disappears
+          # Wait until "verdict-waiting" class disappears
         WebDriverWait(driver, 300).until(
-            EC.invisibility_of_element_located((By.XPATH, "//*[contains(text(), 'Выполняется на тесте')]"))
+            EC.invisibility_of_element_located((By.CLASS_NAME, "verdict-waiting"))
         )
-        app.logger.debug("Submission completed")
+        app.logger.debug("Submission verdict received")
 
         html_content = driver.page_source
         soup = BeautifulSoup(html_content, "html.parser")

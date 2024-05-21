@@ -6,9 +6,9 @@ data = {
     "user": "Uzdik User",
     "typeContest": "gym",
     "contestId": "515622",
-    "problem_id": "A",
+    "problem_id": "A3",
     "language_id": "31",
-    "source_code": "# localserver \nprint(int(input())+int(input()))"
+    "source_code": "# local-server-user \nn = int(input())\nprint(abs(n)%100//10)"
 }
 
 response = requests.post(url, json=data)
