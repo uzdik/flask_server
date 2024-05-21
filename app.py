@@ -14,7 +14,7 @@ import logging
 import time
 
 app = Flask(__name__)
-CORS(app, origins='https://uzdik.github.io')
+CORS(app, origins='https://uzdik.github.io', allow_headers=["Content-Type", "Authorization"], supports_credentials=True)
 
 @app.route('/submit', methods=['POST'])
 def submit():
@@ -139,7 +139,7 @@ def submit():
         app.logger.debug("Chrome WebDriver closed")
         
         response_data = {"message": "Submission successful", "data": return_back_data}
-        response = jsonify(response_data)
+    response = jsonify(response_data)
     
         # Set CORS headers
         response.headers.add("Access-Control-Allow-Origin", "https://uzdik.github.io")
