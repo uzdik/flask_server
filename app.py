@@ -6,6 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import JavascriptException, TimeoutException
+from selenium.webdriver.chrome.service import ChromeService
+
 from urllib.parse import quote as url_quote
 from datetime import datetime
 import re, os
