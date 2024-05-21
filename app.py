@@ -54,7 +54,7 @@ def submit():
 
     try:
         driver.get(enter_url)
-        WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.ID, "handleOrEmail")))
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "handleOrEmail")))
 
         username_input = driver.find_element(By.ID, "handleOrEmail")
         password_input = driver.find_element(By.ID, "password")
@@ -64,7 +64,7 @@ def submit():
         password_input.send_keys(parol)
         submit_button.click()
 
-        WebDriverWait(driver, 3).until(EC.url_changes(enter_url))
+        WebDriverWait(driver, 20).until(EC.url_changes(enter_url))
         app.logger.debug("Logged in to Codeforces")
 
         user = data["user"]
@@ -76,7 +76,7 @@ def submit():
     
         submit_url = f"https://codeforces.com/{typeContest}/{contestId}/submit"
         driver.get(submit_url)
-        WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.NAME, "submittedProblemIndex")))
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.NAME, "submittedProblemIndex")))
         app.logger.debug(f"Navigated to submit URL: {submit_url}")
     
         driver.execute_script(f"document.querySelector('select[name=\"submittedProblemIndex\"]').value = '{problem_id}';")
@@ -85,14 +85,14 @@ def submit():
         driver.execute_script(f"document.querySelector('select[name=\"programTypeId\"]').value = {language_id};")
         app.logger.debug(f"Language selected: {language_id}")
     
-        checkbox = WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.ID, "toggleEditorCheckbox")))
+        checkbox = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "toggleEditorCheckbox")))
         checkbox.click()
         if not checkbox.is_selected():
             checkbox.click()
         driver.execute_script("document.getElementById('sourceCodeTextarea').value = arguments[0];", source_code)
         app.logger.debug(f"Source code set: {source_code}")
     
-        button = WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.ID, "singlePageSubmitButton")))
+        button = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "singlePageSubmitButton")))
         button.click()
         app.logger.debug("Submitted code")
     
@@ -100,13 +100,13 @@ def submit():
         system_time = datetime.strptime(system_time, "%m/%d/%Y, %I:%M:%S %p")
         system_time = system_time.replace(second=0)
         app.logger.debug(f"System time in browser context: {system_time}")
-        time.sleep(20)
+        time.sleep(10)
         res_url = f"https://codeforces.com/{typeContest}/{contestId}/my"
         driver.get(res_url)
 
-        #WebDriverWait(driver, 300).until(EC.invisibility_of_element_located((By.CLASS_NAME, "verdict-waiting")))
+        WebDriverWait(driver, 300).until(EC.invisibility_of_element_located((By.CLASS_NAME, "verdict-waiting")))
         app.logger.debug("Submission verdict received")
-        driver.refresh()
+
         html_content = driver.page_source
         soup = BeautifulSoup(html_content, "html.parser")
         app.logger.debug("Fetched results page")
