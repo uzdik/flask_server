@@ -1,22 +1,3 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import JavascriptException, TimeoutException
-from urllib.parse import quote as url_quote
-from datetime import datetime
-import re, os
-from bs4 import BeautifulSoup
-import logging
-import time
-
-app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://uzdik.github.io"}})
-logging.basicConfig(level=logging.DEBUG)
-
 @app.route('/submit', methods=['POST'])
 def submit():
     app.logger.debug("Received request")
@@ -31,8 +12,9 @@ def submit():
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-dev-shm-usage")
 
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
     app.logger.debug("Chrome WebDriver started")
     
     try:
@@ -51,12 +33,6 @@ def submit():
         WebDriverWait(driver, 10).until(EC.url_changes(enter_url))
         app.logger.debug("Logged in to Codeforces")
 
-        # Save a screenshot for debugging
-        # screenshot_path = os.path.join(os.getcwd(), "my_cur_page0.png")
-        # driver.save_screenshot(screenshot_path)
-        # app.logger.debug(f"Saved screenshot: {screenshot_path}")
-    
-
         user = data["user"]
         typeContest = data["typeContest"]
         contestId = data["contestId"]
@@ -69,10 +45,6 @@ def submit():
         driver.get(submit_url)
         driver.implicitly_wait(10)
         app.logger.debug(f"Navigated to submit URL: {submit_url}")
-        # Save a screenshot for debugging
-        # screenshot_path = os.path.join(os.getcwd(), "my_cur_page1.png")
-        # driver.save_screenshot(screenshot_path)
-        # app.logger.debug(f"Saved screenshot: {screenshot_path}")
         
         try:
             WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.NAME, "submittedProblemIndex")))
@@ -156,14 +128,15 @@ def submit():
         response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
         response.headers.add("Access-Control-Allow-Methods", "POST")
 
-
     except TimeoutException as e:
         driver.save_screenshot("error_screenshot.png")
-        app.logger.error(f"An error occurred: {e}")
-        return jsonify({"error": f"An error occurred: {e}"}), 500
+        app.logger.error(f"Timeout error: {e}")
+        return jsonify({"error": "Timeout error"}), 500
+    except Exception as e:
+        driver.save_screenshot("error_screenshot.png")
+        app.logger.error(f"Unexpected error: {e}")
+        return jsonify({"error": "Unexpected error"}), 500
     finally:
         driver.quit()
-        app.logger.debug("Chrome WebDriver closed")
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    
+    return response
