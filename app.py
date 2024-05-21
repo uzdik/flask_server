@@ -138,7 +138,7 @@ def submit():
         return jsonify({"error": "Unexpected error"}), 500
     finally:
         driver.quit()
-	app.logger.debug("Chrome WebDriver closed")
+        app.logger.debug("Chrome WebDriver closed")
     
     return response
 
