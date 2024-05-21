@@ -7,7 +7,7 @@ data = {
     "contestId": "515622",
     "problem_id": "A",
     "language_id": "31",
-    "source_code": "print(int(input())+int(input()))"
+    "source_code": "# localserver \nprint(int(input())+int(input()))"
 }
 
 response = requests.post(url, json=data)

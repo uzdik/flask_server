@@ -14,10 +14,27 @@ import logging
 import time
 
 app = Flask(__name__)
-CORS(app, origins='*', allow_headers=["Content-Type", "Authorization"], supports_credentials=True)
 
-@app.route('/submit', methods=['POST'])
+# Configure CORS
+cors = CORS(app, resources={
+    r"/submit": {
+        "origins": ["https://uzdik.github.io"],
+        "methods": ["POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
+    }
+})
+
+@app.route('/submit', methods=['POST', 'OPTIONS'])
 def submit():
+    if request.method == 'OPTIONS':
+        response = app.make_default_options_response()
+        response.headers["Access-Control-Allow-Origin"] = "https://uzdik.github.io"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        return response
+
     app.logger.debug("Received request")
     data = request.json
     app.logger.debug(f"Request data: {data}")
@@ -148,11 +165,9 @@ def submit():
         response.headers.add("Access-Control-Allow-Credentials", "true")  # Allow credentials (cookies)
         
     except TimeoutException as e:
-        #driver.save_screenshot("error_screenshot.png")
         app.logger.error(f"Timeout error: {e}")
         return jsonify({"error": "Timeout error"}), 500
     except Exception as e:
-        #driver.save_screenshot("error_screenshot.png")
         app.logger.error(f"Unexpected error: {e}")
         return jsonify({"error": "Unexpected error"}), 500
     finally:
