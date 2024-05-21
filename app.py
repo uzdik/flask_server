@@ -100,11 +100,10 @@ def submit():
         system_time = datetime.strptime(system_time, "%m/%d/%Y, %I:%M:%S %p")
         system_time = system_time.replace(second=0)
         #app.logger.debug(f"System time in browser context: {system_time}")
-        time.sleep(10)
         res_url = f"https://codeforces.com/{typeContest}/{contestId}/my"
         driver.get(res_url)
-
-        #WebDriverWait(driver, 300).until(EC.invisibility_of_element_located((By.CLASS_NAME, "verdict-waiting")))
+        driver.refresh()
+        WebDriverWait(driver, 100).until(EC.invisibility_of_element_located((By.CLASS_NAME, "verdict-waiting")))
         #app.logger.debug("Submission verdict received")
 
         html_content = driver.page_source
@@ -125,24 +124,23 @@ def submit():
                     verdict_elem = row.find("span", class_="verdict-accepted")
                     verdict = verdict_elem.text.strip() if verdict_elem else "Partial"
                     points_elem = row.find("span", class_="verdict-format-points")
-                    points = points_elem.text.strip() if points_elem else "Points not found"
+                    points = points_elem.text.strip() if points_elem else "-1"
                     
                     return_back_data = [submission_time.strftime('%a, %d %b %Y %H:%M:%S GMT'), submission_id, points, verdict]
                     app.logger.debug(f"Submission found: {return_back_data}")
                     break
     
-        driver.quit()
         #app.logger.debug("Chrome WebDriver closed")
         
         response_data = {"message": "Submission successful!", "data": return_back_data}
         response = jsonify(response_data)
-    
+        
         # Set CORS headers
         response.headers.add("Access-Control-Allow-Origin", "https://uzdik.github.io")
         response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
         response.headers.add("Access-Control-Allow-Methods", "POST")
         response.headers.add("Access-Control-Allow-Credentials", "true")
-        
+        return response
     except TimeoutException as e:
         app.logger.error(f"Timeout error: {e}")
         return jsonify({"error": "Timeout error"}), 500
