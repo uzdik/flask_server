@@ -150,12 +150,12 @@ def submit():
         
         response_data = {"message": "Submission successful", "data": return_back_data}
         response = jsonify(response_data)
+    
+        # Set CORS headers
+        response.headers.add("Access-Control-Allow-Origin", "https://uzdik.github.io")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "POST")
 
-    	# Set CORS headers
-    	response.headers.add("Access-Control-Allow-Origin", "https://uzdik.github.io")
-    	response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
-    	response.headers.add("Access-Control-Allow-Methods", "POST")
-    	return response
 
     except TimeoutException as e:
         driver.save_screenshot("error_screenshot.png")
@@ -164,8 +164,6 @@ def submit():
     finally:
         driver.quit()
         app.logger.debug("Chrome WebDriver closed")
-
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
