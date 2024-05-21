@@ -14,6 +14,7 @@ import logging
 import time
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "https://uzdik.github.io"}})
 logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/submit', methods=['POST'])
