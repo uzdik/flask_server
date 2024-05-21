@@ -1,3 +1,19 @@
+from app import app
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import JavascriptException, TimeoutException
+from urllib.parse import quote as url_quote
+from datetime import datetime
+import re, os
+from bs4 import BeautifulSoup
+import logging
+import time
+
 @app.route('/submit', methods=['POST'])
 def submit():
     app.logger.debug("Received request")
