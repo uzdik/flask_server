@@ -85,14 +85,14 @@ def submit():
         driver.execute_script(f"document.querySelector('select[name=\"programTypeId\"]').value = {language_id};")
         app.logger.debug(f"Language selected: {language_id}")
     
-        checkbox = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "toggleEditorCheckbox")))
+        checkbox = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "toggleEditorCheckbox")))
         checkbox.click()
         if not checkbox.is_selected():
             checkbox.click()
         driver.execute_script("document.getElementById('sourceCodeTextarea').value = arguments[0];", source_code)
         app.logger.debug(f"Source code set: {source_code}")
     
-        button = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "singlePageSubmitButton")))
+        button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "singlePageSubmitButton")))
         button.click()
         app.logger.debug("Submitted code")
     
