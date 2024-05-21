@@ -11,6 +11,7 @@ from datetime import datetime
 import re
 from bs4 import BeautifulSoup
 import logging
+import time
 
 app = Flask(__name__)
 
@@ -99,7 +100,12 @@ def submit():
         system_time = datetime.strptime(system_time, "%m/%d/%Y, %I:%M:%S %p")
         system_time = system_time.replace(second=0)
         app.logger.debug(f"System time in browser context: {system_time}")
-    
+
+	# Wait for 30 seconds before starting to process the rows
+        app.logger.debug("Waiting for 30 seconds before processing rows")
+        time.sleep(30)
+        app.logger.debug("Wait complete, starting to process rows")
+
         res_url = f"https://codeforces.com/{typeContest}/{contestId}/my"
         driver.get(res_url)
         html_content = driver.page_source
@@ -108,7 +114,7 @@ def submit():
     
         rows = soup.find_all("tr")
         return_back_data = []
-    
+    	
         for row in rows:
             submission_time_elem = row.find("td", class_="status-small")
             if submission_time_elem:
@@ -129,7 +135,7 @@ def submit():
         driver.quit()
         app.logger.debug("Chrome WebDriver closed")
         
-        response_data = {"message": "Submission successful", "data": return_back_data}
+        response_data = {"message": "Submission successful!", "data": return_back_data}
         response = jsonify(response_data)
     
         # Set CORS headers
