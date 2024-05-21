@@ -6,8 +6,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import JavascriptException, TimeoutException
-from selenium.webdriver.chrome.service import ChromeService
-
 from urllib.parse import quote as url_quote
 from datetime import datetime
 import re, os
@@ -34,11 +32,10 @@ def submit():
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-dev-shm-usage")
 
-    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options)  
     app.logger.debug("Chrome WebDriver started")
-    
-    try:
-        driver.get(enter_url)
+
+    try:        driver.get(enter_url)
 
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "handleOrEmail")))
 
