@@ -8,10 +8,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import JavascriptException, TimeoutException
 from urllib.parse import quote as url_quote
 from datetime import datetime
-import re, os
+import re
 from bs4 import BeautifulSoup
 import logging
-import time
 
 app = Flask(__name__)
 
@@ -54,7 +53,6 @@ def submit():
 
     try:
         driver.get(enter_url)
-
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "handleOrEmail")))
 
         username_input = driver.find_element(By.ID, "handleOrEmail")
@@ -76,50 +74,26 @@ def submit():
         source_code = f'# {user}\n{data["source_code"]}'
     
         submit_url = f"https://codeforces.com/{typeContest}/{contestId}/submit"
-    
         driver.get(submit_url)
-        driver.implicitly_wait(10)
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "submittedProblemIndex")))
         app.logger.debug(f"Navigated to submit URL: {submit_url}")
-        
-        try:
-            WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.NAME, "submittedProblemIndex")))
-            app.logger.debug("Problem index input found")
-        except TimeoutException as e:
-            app.logger.error(f"Error waiting for problem index input: {e}")
-            return jsonify({"error": f"Error waiting for problem index input: {e}"}), 500
     
-        try:
-            driver.execute_script(f"document.querySelector('select[name=\"submittedProblemIndex\"]').value = '{problem_id}';")
-            app.logger.debug(f"Problem index selected: {problem_id}")
-        except JavascriptException as e:
-            app.logger.error(f"Problem with selection: {e}")
-            return jsonify({"error": f"Problem with selection: {e}"}), 500
+        driver.execute_script(f"document.querySelector('select[name=\"submittedProblemIndex\"]').value = '{problem_id}';")
+        app.logger.debug(f"Problem index selected: {problem_id}")
+
+        driver.execute_script(f"document.querySelector('select[name=\"programTypeId\"]').value = {language_id};")
+        app.logger.debug(f"Language selected: {language_id}")
     
-        try:
-            driver.execute_script(f"document.querySelector('select[name=\"programTypeId\"]').value = {language_id};")
-            app.logger.debug(f"Language selected: {language_id}")
-        except JavascriptException as e:
-            app.logger.error(f"Error setting language: {e}")
-            return jsonify({"error": f"Error setting language: {e}"}), 500
-    
-        try:
-            checkbox = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "toggleEditorCheckbox")))
+        checkbox = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "toggleEditorCheckbox")))
+        checkbox.click()
+        if not checkbox.is_selected():
             checkbox.click()
-            if not checkbox.is_selected():
-                checkbox.click()
-            driver.execute_script("document.getElementById('sourceCodeTextarea').value = arguments[0];", source_code)
-            app.logger.debug(f"Source code set: {source_code}")
-        except Exception as e:
-            app.logger.error(f"Error setting source code: {e}")
-            return jsonify({"error": f"Error setting source code: {e}"}), 500
+        driver.execute_script("document.getElementById('sourceCodeTextarea').value = arguments[0];", source_code)
+        app.logger.debug(f"Source code set: {source_code}")
     
-        try:
-            button = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "singlePageSubmitButton")))
-            button.click()
-            app.logger.debug("Submitted code")
-        except Exception as e:
-            app.logger.error(f"Error: {e}")
-            return jsonify({"error": f"Error: {e}"}), 500
+        button = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "singlePageSubmitButton")))
+        button.click()
+        app.logger.debug("Submitted code")
     
         system_time = driver.execute_script("return new Date().toLocaleString();")
         system_time = datetime.strptime(system_time, "%m/%d/%Y, %I:%M:%S %p")
@@ -148,7 +122,7 @@ def submit():
                     points_elem = row.find("span", class_="verdict-format-points")
                     points = points_elem.text.strip() if points_elem else "Points not found"
                     
-                    return_back_data = [submission_time, submission_id, points, verdict]
+                    return_back_data = [submission_time.strftime('%a, %d %b %Y %H:%M:%S GMT'), submission_id, points, verdict]
                     app.logger.debug(f"Submission found: {return_back_data}")
                     break
     
@@ -162,7 +136,7 @@ def submit():
         response.headers.add("Access-Control-Allow-Origin", "https://uzdik.github.io")
         response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
         response.headers.add("Access-Control-Allow-Methods", "POST")
-        response.headers.add("Access-Control-Allow-Credentials", "true")  # Allow credentials (cookies)
+        response.headers.add("Access-Control-Allow-Credentials", "true")
         
     except TimeoutException as e:
         app.logger.error(f"Timeout error: {e}")
