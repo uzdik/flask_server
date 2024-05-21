@@ -14,7 +14,7 @@ import logging
 import time
 
 app = Flask(__name__)
-CORS(app, origins='https://uzdik.github.io', allow_headers=["Content-Type", "Authorization"], supports_credentials=True)
+CORS(app, origins='https://uzdik.github.io/esepter/', allow_headers=["Content-Type", "Authorization"], supports_credentials=True)
 
 @app.route('/submit', methods=['POST'])
 def submit():
