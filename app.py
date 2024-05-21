@@ -1,4 +1,3 @@
-from app import app
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from selenium import webdriver
@@ -13,6 +12,8 @@ import re, os
 from bs4 import BeautifulSoup
 import logging
 import time
+
+app = Flask(__name__)
 
 @app.route('/submit', methods=['POST'])
 def submit():
